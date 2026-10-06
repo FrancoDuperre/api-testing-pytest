@@ -1,0 +1,14 @@
+# Runs Restful-Booker locally so tests get stable, isolated data.
+# There is no published image, so it is built from the upstream source,
+# pinned to a commit for reproducible builds.
+services:
+  restful-booker:
+    build:
+      context: https://github.com/mwinteringham/restful-booker.git#00461155995c8636866bf51dc444f63033da44fb
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3001/ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
