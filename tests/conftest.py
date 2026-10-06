@@ -1,8 +1,10 @@
 import os
 import platform
+import time
 from pathlib import Path
 
 import pytest
+import requests
 from dotenv import load_dotenv
 from requests.auth import HTTPBasicAuth
 
@@ -34,10 +36,25 @@ def credentials() -> tuple[str, str]:
     return require_env("BOOKER_USERNAME"), require_env("BOOKER_PASSWORD")
 
 
+def wait_until_ready(client: BookingClient, timeout: float = 30) -> bool:
+    """A container can report healthy before its port is reachable from the host,
+    so poll /ping instead of failing the whole session on the first refused connection."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            if client.ping().status_code == 201:
+                return True
+        except requests.ConnectionError:
+            pass
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(1)
+
+
 @pytest.fixture(scope="session")
 def client() -> BookingClient:
     client = BookingClient(os.getenv("BASE_URL", "http://localhost:3001"))
-    if client.ping().status_code != 201:
+    if not wait_until_ready(client):
         pytest.exit(f"Restful-Booker is not reachable at {client.base_url}", returncode=2)
     return client
 
