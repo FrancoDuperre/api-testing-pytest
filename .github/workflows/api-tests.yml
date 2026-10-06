@@ -1,0 +1,54 @@
+name: API tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: api-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE_URL: http://localhost:3001
+      BOOKER_USERNAME: ${{ secrets.BOOKER_USERNAME }}
+      BOOKER_PASSWORD: ${{ secrets.BOOKER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start Restful-Booker
+        run: docker compose up -d --build --wait
+
+      - name: Run tests
+        run: pytest --alluredir=allure-results
+
+      - name: Show API logs
+        if: ${{ failure() }}
+        run: docker compose logs
+
+      - name: Generate Allure report
+        if: ${{ !cancelled() }}
+        run: |
+          npm install -g allure-commandline
+          allure generate allure-results -o allure-report --clean --single-file
+
+      - name: Upload Allure report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 14
