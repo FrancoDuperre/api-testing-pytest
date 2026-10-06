@@ -62,7 +62,7 @@ def test_wrong_type_is_rejected(client, overrides):
     assert response.status_code == 500
 
 
-@pytest.mark.xfail(reason="Known bug: API accepts a non-numeric price and stores it as null")
+@pytest.mark.xfail(reason="API bug: API accepts a non-numeric price and stores it as null")
 def test_non_numeric_price_is_rejected(client, cleanup):
     response = client.create_booking(booking_payload(totalprice="abc"))
     if response.status_code == 200:
@@ -71,7 +71,7 @@ def test_non_numeric_price_is_rejected(client, cleanup):
     assert response.status_code in (400, 500)
 
 
-@pytest.mark.xfail(reason='Known bug: API accepts an invalid date and stores "0NaN-aN-aN"')
+@pytest.mark.xfail(reason='API bug: API accepts an invalid date and stores "0NaN-aN-aN"')
 def test_invalid_date_is_rejected(client, cleanup):
     payload = booking_payload(bookingdates={"checkin": "not-a-date", "checkout": "2030-06-15"})
     response = client.create_booking(payload)

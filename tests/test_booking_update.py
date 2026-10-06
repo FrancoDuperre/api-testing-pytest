@@ -60,7 +60,7 @@ def test_update_nonexistent_booking(client, token_auth, method):
     assert response.status_code == 405
 
 
-@pytest.mark.xfail(reason="Known bug: patching only bookingdates.checkout corrupts checkin to 0NaN-aN-aN")
+@pytest.mark.xfail(reason="API bug: patching only bookingdates.checkout corrupts checkin to 0NaN-aN-aN")
 def test_partial_update_of_nested_checkout_keeps_checkin(client, booking, token_auth):
     booking_id, payload = booking
 

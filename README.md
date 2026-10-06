@@ -34,7 +34,7 @@ pytest                             # full suite
 pytest -m smoke                    # one happy path per endpoint
 ```
 
-**Without Docker:** point `BASE_URL` in `.env` at the public instance (`https://restful-booker.herokuapp.com`) and run `pytest`. It is shared and resets periodically, so it is slower and less predictable.
+**Without Docker:** point `BASE_URL` in `.env` at the public instance (`https://restful-booker.herokuapp.com`) and run `pytest`. It is shared and resets itself every 10 minutes, so it is slower and less predictable.
 
 **Allure report** (needs the [Allure CLI](https://allurereport.org/docs/install/)):
 
@@ -58,7 +58,7 @@ allure serve allure-results
 
 ## Unusual API behavior found
 
-Each of these was confirmed by calling the API (both the public instance and the Docker build give the same results). Tests assert the real behavior, with a comment pointing here, so the suite catches any change.
+Restful-Booker is a practice API that its author ships ["loaded with a bunch of bugs for you to explore"](https://restful-booker.herokuapp.com/), so finding them is part of the exercise. Each item below was confirmed by calling the API (the public instance and the Docker build give the same results). Tests assert the real behavior, with a comment pointing here, so the suite catches any change.
 
 | Behavior | Expected | Actual |
 | --- | --- | --- |
